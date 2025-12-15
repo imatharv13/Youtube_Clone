@@ -16,7 +16,7 @@ const PlayVideo = () => {
 
     const [apiData,setApiData] = useState(null);
     const [channelData, setChannelData] = useState(null);
-    const [commentsData, setCommentsData] = useState(null);
+    const [commentsData, setCommentsData] = useState([]);
 
     const fetchVideoData = async() => {
        const viedo_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=${API_KEY}`;
@@ -29,18 +29,19 @@ const PlayVideo = () => {
         await fetch(channelData_url).then(response => response.json()).then(data => setChannelData(data.items[0] || null));
     }
 
-    const fetchCommentsData = async () =>{
-        const comments_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&maxresult=20&videoId=${videoId}&key=${API_KEY}`;
-        await fetch(comments_url).then(response => response.json()).then(data => setCommentsData(data.items));
-    }
-
+    const fetchCommentsData = async () => {
+    const comments_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet,replies&maxResults=20&videoId=${videoId}&key=${API_KEY}`;
+    const response = await fetch(comments_url);
+    const data = await response.json();
+    setCommentsData(data.items || []);
+};
     useEffect(() => {
         fetchVideoData();
-    },[videoId])
+    },[videoId]) //fetch video data when videoId changes
 
     useEffect(() => {
         fetchOtherData();
-    }, [apiData])
+    }, [apiData]) //fetch channel data when apiData changes
 
     useEffect(() => {
         fetchCommentsData();
